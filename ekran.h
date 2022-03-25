@@ -10,12 +10,14 @@ class Ekran : public QWidget
 public:
     QImage im;
     QImage im_tmp;
-    QPoint mouseStartPoint, mouseEndPoint;
+    QPoint mouseStartPoint, mouseEndPoint, mouseMovePoint;
     QVector<QPoint> controlPoints;
     QColor c;
     int index=0;
     int n=3;
     int tolerance = 7;
+    bool isControlPointBeingMoved = false;
+    int movedControlPoint;
     explicit Ekran(QWidget *parent = nullptr);
 protected:
     void paintEvent(QPaintEvent *);
@@ -23,7 +25,7 @@ protected:
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
     void markPoint(int x, int y);
-    void unmarkPoint(int x, int y);
+    void unmarkPoint(int i);
     void putPixel(int x, int y);
     void putPixel(int x, int y, int c);
     void draw();

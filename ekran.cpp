@@ -29,15 +29,45 @@ void Ekran::paintEvent(QPaintEvent *)
 
 void Ekran::mousePressEvent(QMouseEvent *e)
 {
-    im_tmp = im.copy();
+    if(index != 3) im_tmp = im.copy();
     mouseStartPoint = e->pos();
     if(index == 3)
     {
-        if(e->button() == Qt::RightButton) Ekran::unmarkPoint(mouseStartPoint.x(),mouseStartPoint.y());
+        im = im_tmp.copy();
+        if(e->button() == Qt::RightButton)
+        {
+            for(int i = 0; i < controlPoints.size(); ++i)
+            {
+                if(tolerance > abs(controlPoints[i].x() - mouseStartPoint.x()))
+                    if(tolerance > abs(controlPoints[i].y() - mouseStartPoint.y()))
+                    {
+
+                       // Ekran::unmarkPoint(i);
+                        qDebug("usuwamy punkt o indeksie: %d",i);
+                        controlPoints.remove(i);
+                    }
+            }
+        }
+        else if((e->button() == Qt::MiddleButton))
+        {
+            qDebug("both button");
+            for(int i = 0; i < controlPoints.size(); ++i)
+            {
+                if(tolerance > abs(controlPoints[i].x() - mouseStartPoint.x()))
+                    if(tolerance > abs(controlPoints[i].y() - mouseStartPoint.y()))
+                    {
+
+                        // Ekran::unmarkPoint(i);
+                        qDebug("przesuwamy punkt o indeksie: %d",i);
+                        isControlPointBeingMoved = true;
+                        movedControlPoint = i;
+                    }
+            }
+        }
         else
         {
 
-            Ekran::markPoint(mouseStartPoint.x(),mouseStartPoint.y());
+           // Ekran::markPoint(mouseStartPoint.x(),mouseStartPoint.y());
 
             controlPoints.push_back(mouseStartPoint);
             qDebug("%d",(int)controlPoints.size());
@@ -47,17 +77,31 @@ void Ekran::mousePressEvent(QMouseEvent *e)
             }
 
         }
-        if(controlPoints.size() >= 4) Ekran::draw();
+        Ekran::draw();
     }
     //qDebug("press point: x: %d y: %d", mouseStartPoint.x(), mouseStartPoint.y());
 }
 void Ekran::mouseMoveEvent(QMouseEvent *e)
 {
-    if(index != 3) im = im_tmp.copy();
-    mouseEndPoint = e->pos();
-    //qDebug("move point: x: %d y: %d", mouseEndPoint.x(), mouseEndPoint.y());
-    Ekran::draw();
 
+    if(index == 3)
+    {
+        if(isControlPointBeingMoved)
+        {
+
+            mouseMovePoint = e->pos();
+            controlPoints[movedControlPoint] = mouseMovePoint;
+
+        }
+        draw();
+    }
+    else
+    {
+        mouseEndPoint = e->pos();
+        im = im_tmp.copy();
+    }
+        //qDebug("move point: x: %d y: %d", mouseEndPoint.x(), mouseEndPoint.y());
+    Ekran::draw();
 }
 void Ekran::mouseReleaseEvent(QMouseEvent *e)
 {
@@ -72,19 +116,11 @@ void Ekran::markPoint(int x, int y)
 {
     Ekran::drawCircle(x,y,tolerance);
 }
-
-void Ekran::unmarkPoint(int x, int y)
+/*
+void Ekran::unmarkPoint(int i)
 {
-    for(int i = 0; i < controlPoints.size(); ++i)
-    {
-        if(x < abs(controlPoints[i].x() + tolerance))
-            if(y < abs(controlPoints[i].y() + tolerance))
-            {
-                controlPoints.remove(i);
-                //Ekran::drawLine(controlPoints[i.x()-tolera])
-            }
-    }
-}
+    Ekran::drawLine(controlPoints[i].x()-tolerance,controlPoints[i].y()-tolerance,controlPoints[i].x()+tolerance,controlPoints[i].y()+tolerance);
+}*/
 void Ekran::putPixel(int x, int y)
 {
     uchar *pix = im.scanLine(y);
@@ -129,7 +165,14 @@ void Ekran::draw()
         //qDebug("x0: %d y0: %d x1: %d y1: %d ",x0,y0,x1,y1);
         Ekran::drawElipse(x0,y0,R1,R2);
     }
-    if(index == 3) Ekran::drawBezier();
+    if(index == 3)
+    {
+        Ekran::drawBezier();
+        for(int i = 0; i < controlPoints.size(); ++i)
+        {
+            Ekran::markPoint(controlPoints[i].x(),controlPoints[i].y());
+        }
+    }
 }
 
 void Ekran::drawLineDebug(int x1, int y1, int x2, int y2)
@@ -227,7 +270,7 @@ void Ekran::drawBezier()
     {
         x = pow(1-t,3)*controlPoints[0].x() + 3*pow(1-t,2)*t*controlPoints[1].x() + 3*(1-t)*t*t*controlPoints[2].x() + pow(t,3)*controlPoints[3].x();
         y = pow(1-t,3)*controlPoints[0].y() + 3*pow(1-t,2)*t*controlPoints[1].y() + 3*(1-t)*t*t*controlPoints[2].y() + pow(t,3)*controlPoints[3].y();
-        qDebug("drawBezier: %d %d", x, y);
+        qDebug("drawBezier: %f %f", x, y);
         Ekran::putPixel((int)x,(int)y);
     }
 }
