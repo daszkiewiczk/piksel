@@ -17,9 +17,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->horizontalSlider,SIGNAL(valueChanged(int)),
             ui->spinBox,SLOT(setValue(int)));
 
-    connect(ui->pushButton,SIGNAL(clicked),
+    connect(ui->pushButton,SIGNAL(clicked()),
             ui->widget,SLOT(chooseColor()));
 
+    connect(ui->checkBox,SIGNAL(stateChanged(int)),
+            ui->widget,SLOT(setMoving(int)));
 }
 
 MainWindow::~MainWindow()
@@ -33,4 +35,10 @@ MainWindow::~MainWindow()
     qDebug("index: %d", index);
 }*/
 
+
+
+/*void MainWindow::on_checkBox_stateChanged(int arg1)
+{
+    qDebug("%d",arg1);
+}*/
 

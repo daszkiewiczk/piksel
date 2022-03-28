@@ -2,6 +2,7 @@
 #include <QtMath>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QStack>
 #define IM_SIZE 500
 
 
@@ -29,12 +30,14 @@ void Ekran::paintEvent(QPaintEvent *)
 
 void Ekran::mousePressEvent(QMouseEvent *e)
 {
-    if(index != 3) im_tmp = im.copy();
+    //qDebug("%d", e->button() == Qt::MiddleButton);
+    if(index != bezier && index != bspline) im_tmp = im.copy();
     mouseStartPoint = e->pos();
-    if(index == 3)
+    if(index == flood) floodFill(mouseStartPoint, im.pixelColor(mouseStartPoint), c);
+    if(index == bezier || index == bspline)
     {
         im = im_tmp.copy();
-        if(e->button() == Qt::RightButton)
+        if(e->button() == Qt::RightButton && !moving)
         {
             for(int i = 0; i < controlPoints.size(); ++i)
             {
@@ -48,16 +51,14 @@ void Ekran::mousePressEvent(QMouseEvent *e)
                     }
             }
         }
-        else if((e->button() == Qt::MiddleButton))
+        else if(e->button() == Qt::RightButton && moving)
         {
-            qDebug("both button");
             for(int i = 0; i < controlPoints.size(); ++i)
             {
                 if(tolerance > abs(controlPoints[i].x() - mouseStartPoint.x()))
                     if(tolerance > abs(controlPoints[i].y() - mouseStartPoint.y()))
                     {
 
-                        // Ekran::unmarkPoint(i);
                         qDebug("przesuwamy punkt o indeksie: %d",i);
                         isControlPointBeingMoved = true;
                         movedControlPoint = i;
@@ -68,41 +69,40 @@ void Ekran::mousePressEvent(QMouseEvent *e)
         {
 
            // Ekran::markPoint(mouseStartPoint.x(),mouseStartPoint.y());
+            Ekran::addControlPoint(mouseStartPoint);
 
-            controlPoints.push_back(mouseStartPoint);
-            qDebug("%d",(int)controlPoints.size());
-            for(int i = 0; i < controlPoints.size(); ++i)
-            {
-                qDebug("qpoint %d : %d %d",i,controlPoints[i].x(), controlPoints[i].y());
-            }
 
         }
         Ekran::draw();
     }
     //qDebug("press point: x: %d y: %d", mouseStartPoint.x(), mouseStartPoint.y());
 }
+void Ekran::addControlPoint(QPoint pt)
+{
+    if(pt.x() < 0 || pt.x() >= IM_SIZE || pt.y() < 0 || pt.y() >= IM_SIZE) return;
+    controlPoints.push_back(pt);
+}
 void Ekran::mouseMoveEvent(QMouseEvent *e)
 {
-
-    if(index == 3)
+    mouseEndPoint = e->pos();
+    if(index == bezier || index == bspline)
     {
         if(isControlPointBeingMoved)
         {
 
-            mouseMovePoint = e->pos();
-            controlPoints[movedControlPoint] = mouseMovePoint;
-
+            controlPoints[movedControlPoint] = mouseEndPoint;
+            if(moving == true) im = im_tmp.copy();
         }
         draw();
     }
     else
     {
-        mouseEndPoint = e->pos();
         im = im_tmp.copy();
     }
         //qDebug("move point: x: %d y: %d", mouseEndPoint.x(), mouseEndPoint.y());
     Ekran::draw();
 }
+
 void Ekran::mouseReleaseEvent(QMouseEvent *e)
 {
     QPoint mouseEndPoint = e->pos();
@@ -126,9 +126,9 @@ void Ekran::putPixel(int x, int y)
     uchar *pix = im.scanLine(y);
     if(x > 0 && x < IM_SIZE && y > 0 && y < IM_SIZE)
     {
-        pix[4*x] = 255;
-        pix[4*x+1] = 255;
-        pix[4*x+2] = 255;
+        pix[4*x] = c.blue();
+        pix[4*x+1] = c.green();
+        pix[4*x+2] = c.red();
     }
 }
 void Ekran::putPixel(int x, int y, int c)
@@ -149,14 +149,14 @@ void Ekran::draw()
     int y1 = mouseStartPoint.y();
     int x2 = mouseEndPoint.x();
     int y2 = mouseEndPoint.y();
-    if(index == 0) Ekran::drawLine(x1, y1, x2, y2);
-    if(index == 1)
+    if(index == linia) Ekran::drawLine(x1, y1, x2, y2);
+    if(index == okrag)
     {
         int R = sqrt((mouseStartPoint.x()-mouseEndPoint.x())*(mouseStartPoint.x()-mouseEndPoint.x()) + (mouseStartPoint.y()-mouseEndPoint.y())*(mouseStartPoint.y()-mouseEndPoint.y()));
         //qDebug("promien : %d", R);
         Ekran::drawCircle(mouseStartPoint.x(),mouseStartPoint.y(),R);
     }
-    if(index == 2)
+    if(index == elipsa)
     {
         int x0 = (x1+x2)/2;
         int y0 = (y1+y2)/2;
@@ -165,9 +165,18 @@ void Ekran::draw()
         //qDebug("x0: %d y0: %d x1: %d y1: %d ",x0,y0,x1,y1);
         Ekran::drawElipse(x0,y0,R1,R2);
     }
-    if(index == 3)
+    if(index == bezier)
     {
         Ekran::drawBezier();
+        for(int i = 0; i < controlPoints.size(); ++i)
+        {
+            Ekran::markPoint(controlPoints[i].x(),controlPoints[i].y());
+        }
+    }
+    if(index == bspline)
+    {
+        Ekran::drawBspline();
+
         for(int i = 0; i < controlPoints.size(); ++i)
         {
             Ekran::markPoint(controlPoints[i].x(),controlPoints[i].y());
@@ -266,13 +275,65 @@ void Ekran::drawBezier()
 {
     if(controlPoints.size() < 4) return;
     float x,y;
-    for(float t = 0.0; t <= 1.0; t+=0.001)
+    for(int i = 0; i <= (controlPoints.size()-4)/3; ++i)
     {
-        x = pow(1-t,3)*controlPoints[0].x() + 3*pow(1-t,2)*t*controlPoints[1].x() + 3*(1-t)*t*t*controlPoints[2].x() + pow(t,3)*controlPoints[3].x();
-        y = pow(1-t,3)*controlPoints[0].y() + 3*pow(1-t,2)*t*controlPoints[1].y() + 3*(1-t)*t*t*controlPoints[2].y() + pow(t,3)*controlPoints[3].y();
-        qDebug("drawBezier: %f %f", x, y);
-        Ekran::putPixel((int)x,(int)y);
+        for(float t = 0.0; t <= 1.0; t+=0.001)
+        {
+            x = pow(1-t,3)*controlPoints[3*i+0].x() + 3*pow(1-t,2)*t*controlPoints[3*i+1].x() + 3*(1-t)*t*t*controlPoints[3*i+2].x() + pow(t,3)*controlPoints[3*i+3].x();
+            y = pow(1-t,3)*controlPoints[3*i+0].y() + 3*pow(1-t,2)*t*controlPoints[3*i+1].y() + 3*(1-t)*t*t*controlPoints[3*i+2].y() + pow(t,3)*controlPoints[3*i+3].y();
+           // qDebug("drawBezier: %f %f", x, y);
+            Ekran::putPixel((int)x,(int)y);
+        }
     }
+}
+
+void Ekran::drawBspline()
+{
+    if(controlPoints.size() < 4) return;
+    float x,y;
+    for(int i = 0; i <= controlPoints.size()-4; ++i)
+    {
+        for(float t = 0.0; t <= 1.0; t+=0.001)
+        {
+            x =     (-pow(t,3)+3*pow(t,2)-3*t+1)*controlPoints[i+0].x()/6
+                    +(3*pow(t,3)-6*pow(t,2)+4)*controlPoints[i+1].x()/6
+                    +(-3*pow(t,3)+3*pow(t,2)+3*t+1)*controlPoints[i+2].x()/6
+                    +pow(t,3)*controlPoints[i+3].x()/6;
+            y =     (-pow(t,3)+3*pow(t,2)-3*t+1)*controlPoints[i+0].y()/6
+                    +(3*pow(t,3)-6*pow(t,2)+4)*controlPoints[i+1].y()/6
+                    +(-3*pow(t,3)+3*pow(t,2)+3*t+1)*controlPoints[i+2].y()/6
+                    +pow(t,3)*controlPoints[i+3].y()/6;
+                    // qDebug("drawBezier: %f %f", x, y);
+            Ekran::putPixel((int)x,(int)y);
+        }
+    }
+}
+
+void Ekran::floodFill(QPoint p0, QColor oldColor, QColor newColor)
+{
+    QPoint p;
+    QStack<QPoint> Q;
+    Q.push(p0);
+    //qDebug("old color : " + oldColor.name().toLatin1());
+    auto isValid = [&](int x, int y) {if(x >= 0 && x <= IM_SIZE && y >= 0 && y <= IM_SIZE) return true; else return false;};
+    while(!Q.empty())
+    {
+        p = Q.pop();
+        //qDebug("flood fill p : %d %d",p.x(), p.y());
+        if(im.pixelColor(p.x(), p.y()) == oldColor)
+        {
+            //qDebug("pixel color : " + im.pixelColor(p.x(), p.y()).name().toLatin1());
+
+            //qDebug("affirmative");
+            im.setPixel(p, newColor.rgb());
+            if(isValid(p.x()-1, p.y())) Q.push(QPoint(p.x()-1, p.y()));
+            if(isValid(p.x()+1, p.y())) Q.push(QPoint(p.x()+1, p.y()));
+            if(isValid(p.x(), p.y()-1)) Q.push(QPoint(p.x(), p.y()-1));
+            if(isValid(p.x(), p.y()+1)) Q.push(QPoint(p.x(), p.y()+1));
+        }
+    }
+    update();
+    return;
 }
 
 void Ekran::chooseColor()
@@ -280,9 +341,16 @@ void Ekran::chooseColor()
     c = QColorDialog::getColor();
 }
 
+void Ekran::setMoving(int arg)
+{
+    if(arg == 2) moving = true;
+    else moving = false;
+    qDebug("moving: %d", moving);
+}
+
 void Ekran::setIndex(int index)
 {
-    this->index = index;
+    this->index = (opcja)index;
     qDebug("ekran index: %d", index);
 }
 

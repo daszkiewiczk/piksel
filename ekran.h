@@ -2,7 +2,17 @@
 #define EKRAN_H
 
 #include <QWidget>
-#include<QColorDialog>
+#include <QColorDialog>
+
+enum opcja
+{
+    linia,
+    okrag,
+    elipsa,
+    bezier,
+    bspline,
+    flood
+};
 
 class Ekran : public QWidget
 {
@@ -12,11 +22,12 @@ public:
     QImage im_tmp;
     QPoint mouseStartPoint, mouseEndPoint, mouseMovePoint;
     QVector<QPoint> controlPoints;
-    QColor c;
-    int index=0;
+    QColor c = Qt::white;
+    opcja index=linia;
     int n=3;
     int tolerance = 7;
     bool isControlPointBeingMoved = false;
+    bool moving = false;
     int movedControlPoint;
     explicit Ekran(QWidget *parent = nullptr);
 protected:
@@ -24,6 +35,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+    void addControlPoint(QPoint);
     void markPoint(int x, int y);
     void unmarkPoint(int i);
     void putPixel(int x, int y);
@@ -34,10 +46,13 @@ protected:
     void drawCircle(int x0, int y0, int R);
     void drawElipse(int x0, int y0, int R2, int R1);
     void drawBezier();
-    void chooseColor();
+    void drawBspline();
+    void floodFill(QPoint p0, QColor oldColor, QColor newColor);
 private slots:
     void setIndex(int index);
     void setN(int value);
+    void chooseColor();
+    void setMoving(int arg);
 signals:
 
 };
