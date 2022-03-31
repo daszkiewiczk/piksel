@@ -106,7 +106,7 @@ void Ekran::mouseMoveEvent(QMouseEvent *e)
 void Ekran::mouseReleaseEvent(QMouseEvent *e)
 {
     QPoint mouseEndPoint = e->pos();
-
+    if(index == bezier) isControlPointBeingMoved = false;
     qDebug("press point: x: %d y: %d", mouseStartPoint.x(), mouseStartPoint.y());
     qDebug("release point: x: %d y: %d", mouseEndPoint.x(), mouseEndPoint.y());
     Ekran::draw();
@@ -124,7 +124,7 @@ void Ekran::unmarkPoint(int i)
 void Ekran::putPixel(int x, int y)
 {
     uchar *pix = im.scanLine(y);
-    if(x > 0 && x < IM_SIZE && y > 0 && y < IM_SIZE)
+    if(x >= 0 && x < IM_SIZE && y >= 0 && y < IM_SIZE)
     {
         pix[4*x] = c.blue();
         pix[4*x+1] = c.green();
@@ -274,15 +274,20 @@ void Ekran::drawElipse(int x0,int y0,int R2,int R1)
 void Ekran::drawBezier()
 {
     if(controlPoints.size() < 4) return;
-    float x,y;
+    float x,y,xLast,yLast,t;
     for(int i = 0; i <= (controlPoints.size()-4)/3; ++i)
     {
-        for(float t = 0.0; t <= 1.0; t+=0.001)
+        xLast = controlPoints[3*i].x();
+        yLast = controlPoints[3*i].y();
+        for(int j = 0; j <= n; ++j)
         {
+            t = (float)j/(float)n;
             x = pow(1-t,3)*controlPoints[3*i+0].x() + 3*pow(1-t,2)*t*controlPoints[3*i+1].x() + 3*(1-t)*t*t*controlPoints[3*i+2].x() + pow(t,3)*controlPoints[3*i+3].x();
             y = pow(1-t,3)*controlPoints[3*i+0].y() + 3*pow(1-t,2)*t*controlPoints[3*i+1].y() + 3*(1-t)*t*t*controlPoints[3*i+2].y() + pow(t,3)*controlPoints[3*i+3].y();
            // qDebug("drawBezier: %f %f", x, y);
-            Ekran::putPixel((int)x,(int)y);
+            Ekran::drawLine((int)x,(int)y,(int)xLast,(int)yLast);
+            xLast = x;
+            yLast = y;
         }
     }
 }
@@ -290,11 +295,20 @@ void Ekran::drawBezier()
 void Ekran::drawBspline()
 {
     if(controlPoints.size() < 4) return;
-    float x,y;
+    //float x,y;
+
+    float x,y,xLast,yLast,t;
     for(int i = 0; i <= controlPoints.size()-4; ++i)
     {
-        for(float t = 0.0; t <= 1.0; t+=0.001)
+        xLast = controlPoints[i+0].x()/6
+                + 4*controlPoints[i+1].x()/6
+                + controlPoints[i+2].x()/6;
+        yLast = controlPoints[i+0].y()/6
+                + 4*controlPoints[i+1].y()/6
+                + controlPoints[i+2].y()/6;
+        for(int j = 1; j <= n; ++j)
         {
+            t = (float)j/n;
             x =     (-pow(t,3)+3*pow(t,2)-3*t+1)*controlPoints[i+0].x()/6
                     +(3*pow(t,3)-6*pow(t,2)+4)*controlPoints[i+1].x()/6
                     +(-3*pow(t,3)+3*pow(t,2)+3*t+1)*controlPoints[i+2].x()/6
@@ -304,18 +318,22 @@ void Ekran::drawBspline()
                     +(-3*pow(t,3)+3*pow(t,2)+3*t+1)*controlPoints[i+2].y()/6
                     +pow(t,3)*controlPoints[i+3].y()/6;
                     // qDebug("drawBezier: %f %f", x, y);
-            Ekran::putPixel((int)x,(int)y);
+            //Ekran::putPixel((int)x,(int)y);
+            Ekran::drawLine((float)xLast,(float)yLast,(float)x,(float)y);
+            xLast = x;
+            yLast = y;
         }
     }
 }
 
 void Ekran::floodFill(QPoint p0, QColor oldColor, QColor newColor)
 {
+    if(oldColor == newColor) return;
     QPoint p;
     QStack<QPoint> Q;
     Q.push(p0);
     //qDebug("old color : " + oldColor.name().toLatin1());
-    auto isValid = [&](int x, int y) {if(x >= 0 && x <= IM_SIZE && y >= 0 && y <= IM_SIZE) return true; else return false;};
+    auto isValid = [&](int x, int y) {if(x >= 0 && x < IM_SIZE && y >= 0 && y < IM_SIZE) return true; else return false;};
     while(!Q.empty())
     {
         p = Q.pop();
