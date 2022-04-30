@@ -11,7 +11,8 @@ enum opcja
     elipsa,
     bezier,
     bspline,
-    flood
+    flood,
+    scanline
 };
 
 class Ekran : public QWidget
@@ -24,7 +25,8 @@ public:
     QVector<QPoint> controlPoints;
     QColor c = Qt::white;
     opcja index=linia;
-    int n=3;
+    int n = 3;
+    int kernel = 1;
     int tolerance = 7;
     bool isControlPointBeingMoved = false;
     bool moving = false;
@@ -48,11 +50,22 @@ protected:
     void drawBezier();
     void drawBspline();
     void floodFill(QPoint p0, QColor oldColor, QColor newColor);
+    void drawPolygonScanline();
+    void im2monochrome();
+    void monochrome2binary();
+    void invertColors();
 private slots:
     void setIndex(int index);
     void setN(int value);
+    void setKernel(int value);
     void chooseColor();
-    void setMoving(int arg);
+    void setMoving(int arg); 
+    void loadPicture();
+    void dilate();
+    void erode();
+    void open();
+    void close();
+
 signals:
 
 };

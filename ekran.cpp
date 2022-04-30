@@ -3,6 +3,7 @@
 #include <QMouseEvent>
 #include <QPainter>
 #include <QStack>
+#include <QFileDialog>
 #define IM_SIZE 500
 
 
@@ -13,6 +14,7 @@ Ekran::Ekran(QWidget *parent)
 {
     im.fill(0);
     im_tmp.fill(0);
+
 }
 void Ekran::paintEvent(QPaintEvent *)
 {
@@ -21,9 +23,7 @@ void Ekran::paintEvent(QPaintEvent *)
     p.drawImage(0,0,im);
     /*for(int i =0;i<10000; ++i)
     {
-
         p.fillRect(rand()%300,rand()%300,10,10,QColor(rand()%256,rand()%256,rand()%256));
-
     }
     update();*/
 }
@@ -31,10 +31,10 @@ void Ekran::paintEvent(QPaintEvent *)
 void Ekran::mousePressEvent(QMouseEvent *e)
 {
     //qDebug("%d", e->button() == Qt::MiddleButton);
-    if(index != bezier && index != bspline) im_tmp = im.copy();
+    if(index != bezier && index != bspline && index != scanline) im_tmp = im.copy();
     mouseStartPoint = e->pos();
     if(index == flood) floodFill(mouseStartPoint, im.pixelColor(mouseStartPoint), c);
-    if(index == bezier || index == bspline)
+    if(index == bezier || index == bspline || index == scanline)
     {
         im = im_tmp.copy();
         if(e->button() == Qt::RightButton && !moving)
@@ -85,7 +85,7 @@ void Ekran::addControlPoint(QPoint pt)
 void Ekran::mouseMoveEvent(QMouseEvent *e)
 {
     mouseEndPoint = e->pos();
-    if(index == bezier || index == bspline)
+    if(index == bezier || index == bspline || index == scanline)
     {
         if(isControlPointBeingMoved)
         {
@@ -165,23 +165,16 @@ void Ekran::draw()
         //qDebug("x0: %d y0: %d x1: %d y1: %d ",x0,y0,x1,y1);
         Ekran::drawElipse(x0,y0,R1,R2);
     }
-    if(index == bezier)
+    if(index == bezier || index == bspline || index == scanline)
     {
-        Ekran::drawBezier();
         for(int i = 0; i < controlPoints.size(); ++i)
         {
             Ekran::markPoint(controlPoints[i].x(),controlPoints[i].y());
         }
     }
-    if(index == bspline)
-    {
-        Ekran::drawBspline();
-
-        for(int i = 0; i < controlPoints.size(); ++i)
-        {
-            Ekran::markPoint(controlPoints[i].x(),controlPoints[i].y());
-        }
-    }
+    if(index == bezier) drawBezier();
+    if(index == bspline) drawBspline();
+    if(index == scanline) drawPolygonScanline();
 }
 
 void Ekran::drawLineDebug(int x1, int y1, int x2, int y2)
@@ -255,7 +248,7 @@ void Ekran::drawCircle(int x0, int y0, int R)
 }
 void Ekran::drawElipse(int x0,int y0,int R2,int R1)
 {
-    float alfa;
+    double alfa;
     int x,y,x_last,y_last;
     x_last = R2;
     y_last = 0;
@@ -329,6 +322,7 @@ void Ekran::drawBspline()
 void Ekran::floodFill(QPoint p0, QColor oldColor, QColor newColor)
 {
     if(oldColor == newColor) return;
+    qDebug();
     QPoint p;
     QStack<QPoint> Q;
     Q.push(p0);
@@ -354,6 +348,216 @@ void Ekran::floodFill(QPoint p0, QColor oldColor, QColor newColor)
     return;
 }
 
+void Ekran::drawPolygonScanline()
+{
+    int y,ymin,ymax;
+    QPoint p1,p2;
+
+    QList<int> X;
+    ymin = std::numeric_limits<int>::max();
+    ymax = std::numeric_limits<int>::min();
+    auto intercepts = [&](QPoint p1, QPoint p2, int y)
+    {
+        if((p1.y() > y && p2.y() < y) || (p1.y() < y && p2.y() > y)) return true;
+        else if((p1.y() < p2.y() && p1.y() == y) || (p2.y() < p1.y() && p2.y() == y)) return true;
+        else return false;
+    };
+    auto pointOfInterception = [&](QPoint p1, QPoint p2, int y)
+    {
+        int poi;
+        if(p1.y() == p2.y()) return 0; // odcinek jest prostą równoległą do ox
+        else poi = p1.x() + (y-p1.y())*(p2.x()-p1.x())/(p2.y()-p1.y());
+        //qDebug("poi : %d",poi);
+        return poi;
+    };
+    for(int i = 0; i < controlPoints.size(); ++i)
+    {
+        if(controlPoints[i].y() < ymin) ymin = controlPoints[i].y();
+        if(controlPoints[i].y() > ymax) ymax = controlPoints[i].y();
+    }
+    qDebug("%d %d", ymin, ymax);
+    for(y = ymin; y < ymax; ++y)
+    {
+        X.clear();
+        //drawLineDebug(p1.x(),p1.y(),p2.x(),p2.y());
+        //if(intercepts(p1, p2, y)) X.append(pointOfInterception(p1,p2,y));
+
+        for(int i = 0; i < controlPoints.size(); ++i)
+        {
+            p1 = controlPoints[i];
+            p2 = controlPoints[(i+1)%controlPoints.size()];
+            if(intercepts(p1, p2, y)) X.append(pointOfInterception(p1,p2,y));
+        }            //qDebug("%d", intercepts(p1,p2,y));
+
+        std::sort(X.begin(), X.end());
+        for(int j = 0; j < X.size(); ++j)
+        {
+            qDebug().nospace() << X[j];
+            //qDebug("%d",X[j]);
+            if(j%2 == 0 && j+1 < X.size()) drawLine(X[j],y,X[j+1],y);
+            /*if(j%2 == 0)
+                {
+                    for(int k = X[j]; k < X[j+1]; ++k) putPixel(k,y);
+                }*/
+        }
+        qDebug();
+    }
+}
+
+void Ekran::im2monochrome()
+{
+    int avg;
+    uchar* pix;
+    for(int i = 0; i<IM_SIZE;++i)
+    {
+        pix = im.scanLine(i);
+        for(int j =0; j<IM_SIZE;++j)
+        {
+            avg = (pix[4*j] + pix[4*j+1] + pix[4*j+2])/3;
+            pix[4*j] = avg;
+            pix[4*j+1] = avg;
+            pix[4*j+2] = avg;
+        }
+    }
+}
+
+void Ekran::monochrome2binary()
+{
+    int threshold = 127;
+    uchar* pix;
+    for(int i = 0; i<IM_SIZE;++i)
+    {
+        pix = im.scanLine(i);
+        for(int j = 0; j <IM_SIZE; ++j)
+        {
+            if(pix[4*j] > threshold)
+            {
+                pix[4*j] = 255;
+                pix[4*j+1] = 255;
+                pix[4*j+2] = 255;
+            } else {
+
+                pix[4*j] = 0;
+                pix[4*j+1] = 0;
+                pix[4*j+2] = 0;
+            }
+        }
+    }
+}
+
+void Ekran::invertColors()
+{
+    uchar *pix;
+    for(int i = 0; i<IM_SIZE;++i)
+    {
+        pix = im.scanLine(i);
+        for(int j = 0; j <IM_SIZE; ++j)
+        {
+            if(pix[4*j] == 255)
+            {
+                pix[4*j] = 0;
+                pix[4*j+1] = 0;
+                pix[4*j+2] = 0;
+            } else            {
+                pix[4*j] = 255;
+                pix[4*j+1] = 255;
+                pix[4*j+2] = 255;
+            }
+        }
+    }
+}
+
+void Ekran::open()
+{
+    erode();
+    dilate();
+    update();
+}
+
+void Ekran::close()
+{
+    dilate();
+    erode();
+    update();
+}
+
+
+void Ekran::dilate()
+{
+    //dylatacja
+
+    im2monochrome();
+    monochrome2binary();
+    update();
+    auto bg = QColor(Qt::white).rgb();  //zakładamy że biały jest kolorem tła
+    auto lit = QColor(Qt::black).rgb(); //zakładamy że czarny oznacza że piksel jest 'zapalony'
+    //qDebug("wht : " + wht.name().toLatin1());
+    QImage newIm = QImage(IM_SIZE,IM_SIZE,QImage::Format_RGB32);
+    newIm.fill(bg);
+    auto isValid = [&](int x, int y) {if(x >= 0 && x < IM_SIZE && y >= 0 && y < IM_SIZE) return true; else return false;};
+    auto neighbourLit = [&](int i,int j)
+    {
+        if(im.pixelColor(i, j) == lit) return true;
+        for(int k = 1; k <= kernel; ++k)
+        {/*
+            if( im.pixelColor(i-k,  j-k)    == lit ||
+                im.pixelColor(i-k,  j)      == lit ||
+                im.pixelColor(i-k,  j+k)    == lit ||
+                im.pixelColor(i,    j-k)    == lit ||
+                im.pixelColor(i,    j+k)    == lit ||
+                im.pixelColor(i+k,  j-k)    == lit ||
+                im.pixelColor(i+k,  j)      == lit ||
+                im.pixelColor(i+k,  j+k)    == lit) return true;*/
+            for(int x = i-k; x <= i+k; ++x)
+            {
+                for(int y = j-k; y <= j+k; ++y)
+                {
+                    if(isValid(x,y) && im.pixelColor(x,y) == lit) return true;
+                }
+            }
+        }
+        return false;
+    };
+    for(int i = 0; i<IM_SIZE;++i)
+    {
+        for(int j =0; j<IM_SIZE;++j)
+        {
+            if(neighbourLit(i,j))
+            {
+               // qDebug("%d %d : neighbor is lit",i,j);
+                newIm.setPixel(i,j,lit);
+            } else {
+               // qDebug("%d %d : neighbot aint lit",i,j);
+            }
+        }
+    }
+
+    im = newIm.copy();
+
+    update();
+}
+
+void Ekran::erode()
+{
+
+    im2monochrome();
+    monochrome2binary();
+    invertColors();
+    dilate();
+    invertColors();
+}
+
+void Ekran::loadPicture()
+{
+    QString path = QFileDialog::getOpenFileName(this,"Wczytaj obrazek","C://");
+    qDebug().nospace() << qPrintable(path);
+    if(im.load(path) == true) qDebug("udalo sie wczyatc obrazek");
+    else exit(1);
+    //im2monochrome();
+    //monochrome2binary();
+}
+
+
 void Ekran::chooseColor()
 {
     c = QColorDialog::getColor();
@@ -376,4 +580,9 @@ void Ekran::setN(int value)
 {
     n = value;
     qDebug("ekran n: %d", n);
+}
+
+void Ekran::setKernel(int value)
+{
+    kernel = value;
 }

@@ -14,41 +14,48 @@
    <string>KazikDraw</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QCheckBox" name="checkBox">
-    <property name="geometry">
-     <rect>
-      <x>720</x>
-      <y>30</y>
-      <width>78</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>przesuń</string>
-    </property>
-   </widget>
    <widget class="Ekran" name="widget" native="true">
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>20</y>
-      <width>581</width>
-      <height>721</height>
+      <y>30</y>
+      <width>500</width>
+      <height>500</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="rgbHsvButton">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>490</y>
+      <width>80</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>modele barw</string>
     </property>
    </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>640</x>
-      <y>130</y>
-      <width>168</width>
-      <height>91</height>
+      <y>20</y>
+      <width>171</width>
+      <height>331</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QCheckBox" name="checkBox">
+         <property name="text">
+          <string>przesuń</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QComboBox" name="comboBox">
          <item>
@@ -81,10 +88,15 @@
            <string>flood fill</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>scanline fill</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QHBoxLayout" name="nLayout">
          <item>
           <widget class="QSlider" name="horizontalSlider">
            <property name="minimum">
@@ -108,18 +120,98 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QLabel" name="nLabel">
+           <property name="text">
+            <string>n</string>
+           </property>
+          </widget>
+         </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton">
+         <property name="text">
+          <string>wybierz kolor</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="loadPictureButton">
+         <property name="text">
+          <string>wczytaj obrazek</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="kernelLayout">
+         <item>
+          <widget class="QSpinBox" name="kernelSpinBox">
+           <property name="minimum">
+            <number>1</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="kernelLabel">
+           <property name="text">
+            <string>kernel</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="dilateButton">
+         <property name="text">
+          <string>dylatacja</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="erodeButton">
+         <property name="text">
+          <string>erozja</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="openButton">
        <property name="text">
-        <string>wybierz kolor</string>
+        <string>otwarcie</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="closeButton">
+       <property name="text">
+        <string>domknięcie</string>
        </property>
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QPushButton" name="alphaBlendingButton">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>450</y>
+      <width>91</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>alpha-blending</string>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">

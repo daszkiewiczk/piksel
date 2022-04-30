@@ -19,5 +19,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+public slots:
+    void openRgbHsvWindow();
+    void openAlphaBlendingWindow();
 };
 #endif // MAINWINDOW_H
