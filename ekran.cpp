@@ -4,13 +4,14 @@
 #include <QPainter>
 #include <QStack>
 #include <QFileDialog>
+//#include <armadillo>
 #define IM_SIZE 500
-
 
 Ekran::Ekran(QWidget *parent)
     : QWidget{parent},
       im(IM_SIZE,IM_SIZE,QImage::Format_RGB32),
-      im_tmp(IM_SIZE,IM_SIZE,QImage::Format_RGB32)
+      im_tmp(IM_SIZE,IM_SIZE,QImage::Format_RGB32),
+      transformedIm(IM_SIZE,IM_SIZE,QImage::Format_RGB32)
 {
     im.fill(0);
     im_tmp.fill(0);
@@ -21,6 +22,7 @@ void Ekran::paintEvent(QPaintEvent *)
     QPainter p(this);
     p.fillRect(0,0,width(),height(),Qt::gray);
     p.drawImage(0,0,im);
+    if(index == przeksztalcenia) p.drawImage(0,0,transformedIm);
     /*for(int i =0;i<10000; ++i)
     {
         p.fillRect(rand()%300,rand()%300,10,10,QColor(rand()%256,rand()%256,rand()%256));
@@ -467,6 +469,7 @@ void Ekran::invertColors()
     }
 }
 
+
 void Ekran::open()
 {
     erode();
@@ -586,3 +589,85 @@ void Ekran::setKernel(int value)
 {
     kernel = value;
 }
+/*
+void Ekran::setTx(int value)
+{
+    tx = value;
+    //translationMatrix[0][2] = -tx;
+    translationMatrix(0,2) = -tx;
+    //translate(1,1);
+}
+void Ekran::setTy(int value)
+{
+    ty = value;
+    //translationMatrix[1][2] = -ty;
+    translationMatrix(1,2) = -ty;
+}
+
+void Ekran::setSx(int value)
+{
+    sx = value/30.0f;
+
+    //scalingMatrix[0][0] = 1.0f/sx;
+    scalingMatrix(0,0) = 1.0f/sx;
+}
+
+void Ekran::setSy(int value)
+{
+    sy = value/30.0f;
+    //scalingMatrix[1][1] = 1.0f/sy;
+    scalingMatrix(1,1) = 1.0f/sy;
+}*/
+/*
+void Ekran::transform()
+{
+    /*
+    auto multiplyMatrices = [&](QList<QList<float>> A, QList<QList<float>> B)
+    {
+        QList<QList<float>> R{{0,0,0},{0,0,0},{0,0,0}};
+        for(int w = 0; w < 3; ++w)
+        {
+            for(int k = 0; k < 3; ++k)
+            {
+                //R[w][k] = 0;
+                for(int i = 0; i < 3; ++i)
+                {
+                    R[w][k] += A[w][i] * B[i][k];
+                }
+            }
+        }
+        return R;
+    };
+    auto multiplyMatrixWVector = [&](QList<QList<float>> T, QList<float> P)
+    {
+        float xp = T[0][0]*P[0] + T[0][1]*P[1] + T[0][2]*P[2];
+        float yp = T[1][0]*P[0] + T[1][1]*P[1] + T[1][2]*P[2];
+        QList<float> R {xp,yp,1};
+        return R;
+    };*//*
+    transformationMatrix = scalingMatrix * translationMatrix;
+    /*auto originalColor = [&](int a, int b)
+    {
+        QList<float> res = multiplyMatrixWVector(transformationMatrix, QList<float>{(float)a,(float)b,1});
+        return im.pixelColor((int)res[0], (int)res[1]);
+        //return im.bits();
+    };*/
+    auto originalColor = [&](int a, int b)
+    {
+        arma::vec v{(float)a,(float)b,1};
+        arma::vec res = transformationMatrix * v;
+        return im.pixelColor((int)res[0], (int)res[1]);
+    };
+    uchar* pix;
+    for(int i = 0; i < IM_SIZE; ++i)
+    {
+        pix = im.scanLine(i);
+        for(int j = 0; j < IM_SIZE; ++j)
+        {
+
+            //pix[4*j] =  originalColor2(pix[4*j]);
+            transformedIm.setPixelColor(i,j,originalColor(i,j));
+        }
+    }
+    update();
+}*/

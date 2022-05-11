@@ -2,7 +2,9 @@
 #define EKRAN_H
 
 #include <QWidget>
+#include <QVector>
 #include <QColorDialog>
+//#include <armadillo>
 
 enum opcja
 {
@@ -12,7 +14,8 @@ enum opcja
     bezier,
     bspline,
     flood,
-    scanline
+    scanline,
+    przeksztalcenia
 };
 
 class Ekran : public QWidget
@@ -21,16 +24,26 @@ class Ekran : public QWidget
 public:
     QImage im;
     QImage im_tmp;
+    QImage transformedIm;
     QPoint mouseStartPoint, mouseEndPoint, mouseMovePoint;
     QVector<QPoint> controlPoints;
     QColor c = Qt::white;
-    opcja index=linia;
+    opcja index=przeksztalcenia;
     int n = 3;
     int kernel = 1;
     int tolerance = 7;
     bool isControlPointBeingMoved = false;
     bool moving = false;
     int movedControlPoint;
+    float tx,ty,sx,sy,alfa;
+    //QVector<QVector<float>> transformationMatrix{{1,0,0},{0,1,0},{0,0,1}};
+    //QVector<QVector<float>> translationMatrix{{1,0,0},{0,1,0},{0,0,1}};
+    //QVector<QVector<float>> scalingMatrix{{1,0,0},{0,1,0},{0,0,1}};
+    //QVector<QVector<float>> rotationMatrix{{1,0,0},{0,1,0},{0,0,1}};
+    //arma::mat transformationMatrix = arma::eye(3,3);
+    //arma::mat translationMatrix = arma::eye(3,3);
+    //arma::mat scalingMatrix = arma::eye(3,3);
+    //arma::mat rotationMatrix = arma::eye(3,3);
     explicit Ekran(QWidget *parent = nullptr);
 protected:
     void paintEvent(QPaintEvent *);
@@ -54,11 +67,17 @@ protected:
     void im2monochrome();
     void monochrome2binary();
     void invertColors();
-private slots:
+
+    private slots:
     void setIndex(int index);
     void setN(int value);
     void setKernel(int value);
-    void chooseColor();
+    /*void setTx(int value);
+    void setTy(int value);
+    void setSx(int value);
+    void setSy(int value);
+    void transform();
+    */void chooseColor();
     void setMoving(int arg); 
     void loadPicture();
     void dilate();

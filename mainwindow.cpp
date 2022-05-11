@@ -27,6 +27,24 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->checkBox,SIGNAL(stateChanged(int)),
             ui->widget,SLOT(setMoving(int)));
 
+    connect(ui->txSlider, SIGNAL(valueChanged(int)),
+            ui->widget, SLOT(setTx(int)));
+    connect(ui->tySlider, SIGNAL(valueChanged(int)),
+            ui->widget, SLOT(setTy(int)));
+    connect(ui->sxSlider, SIGNAL(valueChanged(int)),
+            ui->widget, SLOT(setSx(int)));
+    connect(ui->sySlider, SIGNAL(valueChanged(int)),
+            ui->widget, SLOT(setSy(int)));
+
+    connect(ui->txSlider, SIGNAL(sliderReleased()),
+            ui->widget, SLOT(transform()));
+    connect(ui->tySlider, SIGNAL(sliderReleased()),
+            ui->widget, SLOT(transform()));
+    connect(ui->sySlider, SIGNAL(sliderReleased()),
+            ui->widget, SLOT(transform()));
+    connect(ui->sxSlider, SIGNAL(sliderReleased()),
+            ui->widget, SLOT(transform()));
+
     connect(ui->rgbHsvButton,SIGNAL(clicked()),
             this,SLOT(openRgbHsvWindow()));
     connect(ui->alphaBlendingButton,SIGNAL(clicked()),

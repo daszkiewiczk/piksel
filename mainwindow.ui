@@ -37,174 +37,11 @@
      <string>modele barw</string>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>20</y>
-      <width>171</width>
-      <height>331</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QCheckBox" name="checkBox">
-         <property name="text">
-          <string>przesuń</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="comboBox">
-         <item>
-          <property name="text">
-           <string>rysowanie linii</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>rysowanie okregu</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>rysowanie elipsy</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>rysowanie krzywej Beziera</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>rysowanie krzywej Bspline</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>flood fill</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>scanline fill</string>
-          </property>
-         </item>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="nLayout">
-         <item>
-          <widget class="QSlider" name="horizontalSlider">
-           <property name="minimum">
-            <number>3</number>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spinBox">
-           <property name="minimum">
-            <number>3</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-           <property name="singleStep">
-            <number>1</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="nLabel">
-           <property name="text">
-            <string>n</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton">
-         <property name="text">
-          <string>wybierz kolor</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="Line" name="line">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="loadPictureButton">
-         <property name="text">
-          <string>wczytaj obrazek</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="kernelLayout">
-         <item>
-          <widget class="QSpinBox" name="kernelSpinBox">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="kernelLabel">
-           <property name="text">
-            <string>kernel</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QPushButton" name="dilateButton">
-         <property name="text">
-          <string>dylatacja</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="erodeButton">
-         <property name="text">
-          <string>erozja</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QPushButton" name="openButton">
-       <property name="text">
-        <string>otwarcie</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="closeButton">
-       <property name="text">
-        <string>domknięcie</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
    <widget class="QPushButton" name="alphaBlendingButton">
     <property name="geometry">
      <rect>
       <x>690</x>
-      <y>450</y>
+      <y>460</y>
       <width>91</width>
       <height>24</height>
      </rect>
@@ -212,6 +49,301 @@
     <property name="text">
      <string>alpha-blending</string>
     </property>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>20</y>
+      <width>192</width>
+      <height>433</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QCheckBox" name="checkBox">
+           <property name="text">
+            <string>przesuń</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBox">
+           <property name="currentIndex">
+            <number>7</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>rysowanie linii</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>rysowanie okregu</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>rysowanie elipsy</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>rysowanie krzywej Beziera</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>rysowanie krzywej Bspline</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>flood fill</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>scanline fill</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>przekształcenia geometryczne</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="nLayout">
+           <item>
+            <widget class="QSlider" name="horizontalSlider">
+             <property name="minimum">
+              <number>3</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBox">
+             <property name="minimum">
+              <number>3</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="singleStep">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="nLabel">
+             <property name="text">
+              <string>n</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton">
+           <property name="text">
+            <string>wybierz kolor</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="Line" name="line">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="loadPictureButton">
+           <property name="text">
+            <string>wczytaj obrazek</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="kernelLayout">
+           <item>
+            <widget class="QSpinBox" name="kernelSpinBox">
+             <property name="minimum">
+              <number>1</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="kernelLabel">
+             <property name="text">
+              <string>kernel</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QPushButton" name="dilateButton">
+           <property name="text">
+            <string>dylatacja</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="erodeButton">
+           <property name="text">
+            <string>erozja</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="openButton">
+         <property name="text">
+          <string>otwarcie</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="closeButton">
+         <property name="text">
+          <string>domknięcie</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Tx</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="txSlider">
+         <property name="minimum">
+          <number>-250</number>
+         </property>
+         <property name="maximum">
+          <number>250</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>Ty</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="tySlider">
+         <property name="minimum">
+          <number>-250</number>
+         </property>
+         <property name="maximum">
+          <number>250</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Sx</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="sxSlider">
+         <property name="minimum">
+          <number>-100</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Sy</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="sySlider">
+         <property name="minimum">
+          <number>-100</number>
+         </property>
+         <property name="maximum">
+          <number>100</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>Ra</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSlider" name="raSlider">
+         <property name="minimum">
+          <number>-180</number>
+         </property>
+         <property name="maximum">
+          <number>180</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
